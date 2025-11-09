@@ -2,28 +2,18 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import Navbar from '@/components/Navbar';
 import { Settings, DollarSign } from 'lucide-react';
 
 export default function AdminPage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
   const [pricingRules, setPricingRules] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login');
-    } else if (status === 'authenticated') {
-      if (session.user.role !== 'ADMIN') {
-        router.push('/dashboard');
-      } else {
-        fetchPricingRules();
-      }
-    }
-  }, [status, session]);
+    fetchPricingRules();
+  }, []);
 
   const fetchPricingRules = async () => {
     try {
@@ -59,7 +49,7 @@ export default function AdminPage() {
     }
   };
 
-  if (status === 'loading' || loading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navbar />

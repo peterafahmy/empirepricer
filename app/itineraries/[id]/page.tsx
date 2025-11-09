@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import Navbar from '@/components/Navbar';
 import TravelerManager from '@/components/TravelerManager';
 import ServiceManager from '@/components/ServiceManager';
@@ -26,18 +25,13 @@ interface Itinerary {
 export default function ItineraryEditPage() {
   const router = useRouter();
   const params = useParams();
-  const { status } = useSession();
   const [itinerary, setItinerary] = useState<Itinerary | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login');
-    } else if (status === 'authenticated') {
-      fetchItinerary();
-    }
-  }, [status]);
+    fetchItinerary();
+  }, []);
 
   const fetchItinerary = async () => {
     try {

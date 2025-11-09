@@ -2,12 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import Navbar from '@/components/Navbar';
 
 export default function NewItineraryPage() {
   const router = useRouter();
-  const { status } = useSession();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -18,11 +16,6 @@ export default function NewItineraryPage() {
     notes: '',
     termsConditions: 'Standard terms and conditions apply.',
   });
-
-  if (status === 'unauthenticated') {
-    router.push('/login');
-    return null;
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

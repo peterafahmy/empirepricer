@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import Navbar from '@/components/Navbar';
 import { Plus, Edit, Trash2, Copy, FileText } from 'lucide-react';
 import { formatDate, formatCurrency } from '@/lib/utils';
@@ -22,17 +21,12 @@ interface Itinerary {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
   const [itineraries, setItineraries] = useState<Itinerary[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login');
-    } else if (status === 'authenticated') {
-      fetchItineraries();
-    }
-  }, [status]);
+    fetchItineraries();
+  }, []);
 
   const fetchItineraries = async () => {
     try {
@@ -78,7 +72,7 @@ export default function DashboardPage() {
     }
   };
 
-  if (status === 'loading' || loading) {
+  if (loading) {
     return (
       <div className="min-h-screen">
         <Navbar />

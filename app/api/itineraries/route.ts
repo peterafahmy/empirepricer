@@ -1,21 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-// GET all itineraries for the logged-in agent
+// GET all itineraries
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const itineraries = await prisma.itinerary.findMany({
-      where: {
-        agentId: session.user.id,
-      },
       include: {
         travelers: true,
         services: true,
@@ -45,14 +34,21 @@ export async function GET(request: NextRequest) {
 // POST create new itinerary
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const body = await request.json();
     const { title, customerName, startDate, endDate, currency, notes, termsConditions } = body;
+
+    // Get or create a default user for public access
+    let defaultUser = await prisma.user.findFirst({ where: { email: 'public@empiretravel.com' } });
+    if (!defaultUser) {
+      defaultUser = await prisma.user.create({
+        data: {
+          email: 'public@empiretravel.com',
+          name: 'Public User',
+          password: 'none',
+          role: 'AGENT',
+        },
+      });
+    }
 
     const itinerary = await prisma.itinerary.create({
       data: {
@@ -63,7 +59,7 @@ export async function POST(request: NextRequest) {
         currency: currency || 'USD',
         notes,
         termsConditions,
-        agentId: session.user.id,
+        agentId: defaultUser.id,
       },
       include: {
         travelers: true,
