@@ -1,0 +1,163 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  AGENT
+}
+
+enum RoomType {
+  SINGLE
+  DOUBLE
+  TWIN
+  TRIPLE
+  FAMILY
+}
+
+enum ServiceType {
+  ACCOMMODATION
+  TRANSFER
+  TOUR
+  MISCELLANEOUS
+}
+
+enum PricingType {
+  PER_PERSON
+  PER_ROOM
+  PER_GROUP
+}
+
+model User {
+  id            String       @id @default(cuid())
+  email         String       @unique
+  name          String
+  password      String
+  role          UserRole     @default(AGENT)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  itineraries   Itinerary[]
+}
+
+model Itinerary {
+  id              String       @id @default(cuid())
+  title           String
+  customerName    String
+  startDate       DateTime
+  endDate         DateTime
+  currency        String       @default("USD")
+  notes           String?
+  termsConditions String?
+  agentId         String
+  agent           User         @relation(fields: [agentId], references: [id])
+  travelers       Traveler[]
+  services        Service[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@index([agentId])
+}
+
+model Traveler {
+  id              String       @id @default(cuid())
+  itineraryId     String
+  itinerary       Itinerary    @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  name            String
+  age             Int?
+  roomType        RoomType
+  roomNumber      Int          @default(1)
+  isSingleOccupancy Boolean    @default(false)
+  createdAt       DateTime     @default(now())
+
+  @@index([itineraryId])
+}
+
+model Service {
+  id              String       @id @default(cuid())
+  itineraryId     String
+  itinerary       Itinerary    @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  type            ServiceType
+  name            String
+  description     String?
+  date            DateTime?
+  pricingType     PricingType
+  basePrice       Float
+  quantity        Int          @default(1)
+  taxRate         Float        @default(0)
+  discount        Float        @default(0)
+  supplierCost    Float?
+  notes           String?
+  order           Int          @default(0)
+  createdAt       DateTime     @default(now())
+
+  @@index([itineraryId])
+}
+
+model AccommodationTemplate {
+  id                    String       @id @default(cuid())
+  name                  String
+  description           String?
+  location              String?
+  singleRoomRate        Float
+  doubleRoomRate        Float
+  tripleRoomRate        Float?
+  familyRoomRate        Float?
+  singleSupplement      Float        @default(0)
+  tripleDiscount        Float        @default(0)
+  childDiscount         Float        @default(0)
+  taxRate               Float        @default(0)
+  isActive              Boolean      @default(true)
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+}
+
+model TransferTemplate {
+  id              String       @id @default(cuid())
+  name            String
+  description     String?
+  from            String
+  to              String
+  pricePerPerson  Float?
+  pricePerGroup   Float?
+  taxRate         Float        @default(0)
+  isActive        Boolean      @default(true)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model TourTemplate {
+  id              String       @id @default(cuid())
+  name            String
+  description     String?
+  location        String?
+  duration        String?
+  pricePerPerson  Float?
+  pricePerGroup   Float?
+  taxRate         Float        @default(0)
+  isActive        Boolean      @default(true)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model PricingRule {
+  id                      String       @id @default(cuid())
+  name                    String
+  singleSupplementFlat    Float        @default(0)
+  singleSupplementPercent Float        @default(0)
+  tripleDiscountFlat      Float        @default(0)
+  tripleDiscountPercent   Float        @default(0)
+  childDiscountPercent    Float        @default(0)
+  childAgeLimit           Int          @default(12)
+  defaultTaxRate          Float        @default(0)
+  isDefault               Boolean      @default(false)
+  createdAt               DateTime     @default(now())
+  updatedAt               DateTime     @updatedAt
+}
