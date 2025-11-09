@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Plus, Edit2, Trash2, Briefcase } from 'lucide-react';
-import { ServiceType, PricingType } from '@prisma/client';
+import { ServiceType, PricingType } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 
 interface Service {

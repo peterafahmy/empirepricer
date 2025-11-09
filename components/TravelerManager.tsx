@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Plus, Edit2, Trash2, Users } from 'lucide-react';
-import { RoomType } from '@prisma/client';
+import { RoomType } from '@/lib/types';
 
 interface Traveler {
   id: string;

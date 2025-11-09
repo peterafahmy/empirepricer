@@ -10,38 +10,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  ADMIN
-  AGENT
-}
-
-enum RoomType {
-  SINGLE
-  DOUBLE
-  TWIN
-  TRIPLE
-  FAMILY
-}
-
-enum ServiceType {
-  ACCOMMODATION
-  TRANSFER
-  TOUR
-  MISCELLANEOUS
-}
-
-enum PricingType {
-  PER_PERSON
-  PER_ROOM
-  PER_GROUP
-}
-
 model User {
   id            String       @id @default(cuid())
   email         String       @unique
   name          String
   password      String
-  role          UserRole     @default(AGENT)
+  role          String       @default("AGENT")
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   itineraries   Itinerary[]
@@ -72,7 +46,7 @@ model Traveler {
   itinerary       Itinerary    @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
   name            String
   age             Int?
-  roomType        RoomType
+  roomType        String
   roomNumber      Int          @default(1)
   isSingleOccupancy Boolean    @default(false)
   createdAt       DateTime     @default(now())
@@ -84,11 +58,11 @@ model Service {
   id              String       @id @default(cuid())
   itineraryId     String
   itinerary       Itinerary    @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
-  type            ServiceType
+  type            String
   name            String
   description     String?
   date            DateTime?
-  pricingType     PricingType
+  pricingType     String
   basePrice       Float
   quantity        Int          @default(1)
   taxRate         Float        @default(0)

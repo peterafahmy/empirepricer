@@ -1,4 +1,4 @@
-import { PricingType, RoomType } from '@prisma/client';
+import { PricingType, RoomType } from '@/lib/types';
 
 export interface TravelerData {
   id: string;
